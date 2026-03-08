@@ -142,7 +142,7 @@ lottie_data = {
     ]
 }
 
-os.makedirs('/Users/r_chr/plank_app/assets/animations', exist_ok=True)
-with open('/Users/r_chr/plank_app/assets/animations/quantum_entanglement.json', 'w') as f:
+os.makedirs('/Users/r_chr/planck_app/assets/animations', exist_ok=True)
+with open('/Users/r_chr/planck_app/assets/animations/quantum_entanglement.json', 'w') as f:
     json.dump(lottie_data, f)
 print("Entanglement json created.")

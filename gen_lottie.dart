@@ -73,7 +73,7 @@ void main() async {
     ]
   };
 
-  final file = File('/Users/r_chr/plank_app/assets/animations/placeholder.json');
+  final file = File('/Users/r_chr/planck_app/assets/animations/placeholder.json');
   await file.create(recursive: true);
   await file.writeAsString(jsonEncode(lottieData));
   stdout.writeln("Lottie JSON written.");

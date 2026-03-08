@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-DIR="/Users/r_chr/plank_app/assets/audio"
+DIR="/Users/r_chr/planck_app/assets/audio"
 mkdir -p "$DIR"
 
 # Quantum Computing Voiceovers

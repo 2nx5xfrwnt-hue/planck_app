@@ -57,11 +57,11 @@ def create_lottie(filename, name, text):
             }
         ]
     }
-    path = f'/Users/r_chr/plank_app/assets/animations/{filename}'
+    path = f'/Users/r_chr/planck_app/assets/animations/{filename}'
     with open(path, 'w') as f:
         json.dump(lottie_data, f)
     print(f"Created {path}")
 
-os.makedirs('/Users/r_chr/plank_app/assets/animations', exist_ok=True)
+os.makedirs('/Users/r_chr/planck_app/assets/animations', exist_ok=True)
 create_lottie('quantum_computing.json', 'Quantum Computing', 'Qubit')
 create_lottie('string_theory.json', 'String Theory', 'String')
