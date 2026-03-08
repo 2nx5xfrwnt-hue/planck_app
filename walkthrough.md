@@ -10,8 +10,9 @@ Welcome to Planck! This guide outlines how to navigate and test the app's core f
    - **Math:** Quick mental arithmetic.
    - **Color Sequence:** A memory-based pattern game.
    - **Word Match:** Unscramble quantum-related words.
-   - **Tap Target:** Click moving particles.
+   - **Tap Target:** Catch 5 glowing quantum particles by tapping them as they appear at random positions.
 5. **Unlock Knowledge:** Once observed, the full, multi-paragraph fact is revealed. You can scroll through the text.
+6. **Closing a Task:** Use the **X** button in the top-right corner of the task dialog to cancel and return to the feed.
 6. **Insight Points:** Every task completed earns you Insight Points (IP), which are tracked in the top-right frosted glass badge.
 
 ## Testing on Physical Device

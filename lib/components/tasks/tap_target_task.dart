@@ -202,25 +202,27 @@ class _TapTargetTaskState extends State<TapTargetTask>
                       ),
                     ),
                   ),
-                  // Burst particles
-                  AnimatedBuilder(
-                    animation: _burstController,
-                    builder: (context, _) {
-                      if (!_burstController.isAnimating && _burstController.value == 0) {
-                        return const SizedBox.shrink();
-                      }
-                      final progress = _burstController.value;
-                      final opacity = (1.0 - progress).clamp(0.0, 1.0);
-                      return CustomPaint(
-                        size: Size(areaW, areaH),
-                        painter: _BurstPainter(
-                          centerX: _burstX,
-                          centerY: _burstY,
-                          progress: progress,
-                          opacity: opacity,
-                        ),
-                      );
-                    },
+                  // Burst particles — IgnorePointer so taps pass through
+                  IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _burstController,
+                      builder: (context, _) {
+                        if (!_burstController.isAnimating) {
+                          return const SizedBox.shrink();
+                        }
+                        final progress = _burstController.value;
+                        final opacity = (1.0 - progress).clamp(0.0, 1.0);
+                        return CustomPaint(
+                          size: Size(areaW, areaH),
+                          painter: _BurstPainter(
+                            centerX: _burstX,
+                            centerY: _burstY,
+                            progress: progress,
+                            opacity: opacity,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               );

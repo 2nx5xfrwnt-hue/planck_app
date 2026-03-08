@@ -46,18 +46,25 @@ class TaskManagerDialog extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Proof of Observation",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    "Proof of Observation",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: onCancel,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  splashRadius: 20,
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: onCancel,
+                    padding: EdgeInsets.zero,
+                    splashRadius: 20,
+                  ),
                 ),
               ],
             ),
