@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'quantum_post.dart';
+import 'database_helper.dart';
 
 class PostRepository {
   static final Random _rand = Random();
@@ -132,49 +132,85 @@ class PostRepository {
   // Bump this whenever TaskType enum changes so stale caches are discarded.
   static const int _feedVersion = 4;
 
-  static Future<List<QuantumPost>> generateDailyFeed() async {
-    final prefs = await SharedPreferences.getInstance();
-    
-    // Check if we have a saved feed for today AND same version
-    final now = DateTime.now();
-    final todayStr = "${now.year}-${now.month}-${now.day}";
-    final savedDate = prefs.getString('daily_feed_date');
-    final savedVersion = prefs.getInt('daily_feed_version') ?? 0;
-    final savedFeedJson = prefs.getString('daily_feed_data');
+  static final DatabaseHelper _db = DatabaseHelper.instance;
 
-    if (savedDate == todayStr && savedVersion == _feedVersion && savedFeedJson != null) {
+  /// Returns today's date string used as the feed key.
+  static String _todayKey() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month}-${now.day}';
+  }
+
+  /// Loads or generates the daily feed, hydrating unlock state from SQLite.
+  static Future<List<QuantumPost>> generateDailyFeed() async {
+    final todayStr = _todayKey();
+
+    // Try loading a cached feed from the database.
+    final cachedJson = await _db.getCachedFeed(todayStr, _feedVersion);
+    if (cachedJson != null) {
       try {
-        final List<dynamic> decoded = jsonDecode(savedFeedJson);
-        return decoded.map((item) => QuantumPost.fromJson(item as Map<String, dynamic>)).toList();
-      } catch (e) {
-        // Fallback to regenerate
+        final List<dynamic> decoded = jsonDecode(cachedJson);
+        final posts = decoded
+            .map((item) => QuantumPost.fromJson(item as Map<String, dynamic>))
+            .toList();
+        return _hydrateUnlockState(posts, todayStr);
+      } catch (_) {
+        // Corrupt cache – fall through and regenerate.
       }
     }
 
-    // We shuffle the facts to pick 25 unique ones
+    // Generate a fresh feed.
     final shuffledFacts = List<Map<String, String>>.from(_factPool)..shuffle(_rand);
-    
-    // Select 25
     final selectedFacts = shuffledFacts.take(25).toList();
 
     final newFeed = List.generate(25, (index) {
       final factData = selectedFacts[index];
       final taskType = TaskType.values[_rand.nextInt(TaskType.values.length)];
-      
+
       return QuantumPost(
-        id: "post_$index\u0024{_rand.nextInt(10000)}", // Made ID slightly more unique for the seed
+        id: "post_$index\u0024{_rand.nextInt(10000)}",
         teaserText: factData['teaser']!,
         fullFactText: factData['fact']!,
         taskType: taskType,
       );
     });
 
-    // Save to SharedPreferences
+    // Persist to SQLite.
     final jsonList = newFeed.map((post) => post.toJson()).toList();
-    await prefs.setString('daily_feed_date', todayStr);
-    await prefs.setInt('daily_feed_version', _feedVersion);
-    await prefs.setString('daily_feed_data', jsonEncode(jsonList));
+    await _db.cacheFeed(todayStr, jsonEncode(jsonList), _feedVersion);
 
     return newFeed;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Post interaction helpers
+  // ---------------------------------------------------------------------------
+
+  /// Marks a post as unlocked in the database.
+  static Future<void> markPostUnlocked(String postId) async {
+    await _db.markPostUnlocked(postId, _todayKey());
+  }
+
+  /// Returns `true` if [postId] has been unlocked.
+  static Future<bool> isPostUnlocked(String postId) async {
+    return _db.isPostUnlocked(postId);
+  }
+
+  /// Returns the set of unlocked post IDs for [feedDate].
+  static Future<Set<String>> getUnlockedPostIds(String feedDate) async {
+    return _db.getUnlockedPostIds(feedDate);
+  }
+
+  /// Hydrates `isUnlocked` on each post from the database.
+  static Future<List<QuantumPost>> _hydrateUnlockState(
+    List<QuantumPost> posts,
+    String feedDate,
+  ) async {
+    final unlockedIds = await _db.getUnlockedPostIds(feedDate);
+    return posts.map((post) {
+      if (unlockedIds.contains(post.id)) {
+        return post.copyWith(isUnlocked: true);
+      }
+      return post;
+    }).toList();
   }
 }
