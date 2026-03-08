@@ -62,7 +62,17 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(covariant PostCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isActive && !oldWidget.isActive) {
+
+    // When the underlying post is replaced (e.g. after "Next Multiverse"),
+    // reset the card back to the locked/teaser state so the user sees
+    // the fresh teaser on the main feed instead of the unlocked fact view.
+    if (widget.post.id != oldWidget.post.id) {
+      _isUnlocked = false;
+      _showSuccessBanner = false;
+      _isVisible = false;
+      _bgController.stop();
+      _entranceController.forward(from: 0);
+    } else if (widget.isActive && !oldWidget.isActive) {
       _entranceController.forward(from: 0);
     }
   }
