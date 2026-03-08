@@ -56,6 +56,25 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
     }
   }
 
+  Future<void> _handleNextMultiverse(int index) async {
+    final completedPost = _posts[index];
+
+    // 1. Mark the current post as completed in the database.
+    await PostRepository.markPostUnlocked(completedPost.id);
+
+    // 2. Fetch a fresh unseen post.
+    final currentTeasers = _posts.map((p) => p.teaserText).toSet();
+    final newPost = PostRepository.fetchUnseenPost(currentTeasers);
+
+    if (newPost != null && mounted) {
+      // 3. Replace at the same index and persist the updated feed.
+      setState(() {
+        _posts[index] = newPost;
+      });
+      await PostRepository.updateCachedFeed(_posts);
+    }
+  }
+
   @override
   void dispose() {
     _pageController?.dispose();
@@ -85,6 +104,7 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
                 return PostCard(
                   post: _posts[index],
                   isActive: index == _currentPage,
+                  onNextMultiverse: () => _handleNextMultiverse(index),
                 );
               },
             ),

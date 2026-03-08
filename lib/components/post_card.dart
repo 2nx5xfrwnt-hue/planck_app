@@ -11,11 +11,13 @@ import 'tasks/task_manager_dialog.dart';
 class PostCard extends StatefulWidget {
   final QuantumPost post;
   final bool isActive;
+  final VoidCallback? onNextMultiverse;
 
   const PostCard({
     super.key,
     required this.post,
     this.isActive = false,
+    this.onNextMultiverse,
   });
 
   @override
@@ -316,13 +318,52 @@ class _PostCardState extends State<PostCard> with TickerProviderStateMixin {
                       ),
 
                     if (_isUnlocked)
-                      const Expanded(
+                      Expanded(
                         flex: 1,
                         child: Center(
-                          child: Icon(
-                            Icons.check_circle_outline,
-                            color: Colors.greenAccent,
-                            size: 48,
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, child) {
+                              final scale = 1.0 + _pulseController.value * 0.04;
+                              final glowAlpha = 0.3 + _pulseController.value * 0.4;
+                              return Transform.scale(
+                                scale: scale,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.neonPurple.withValues(alpha: glowAlpha),
+                                        blurRadius: 20,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: ElevatedButton.icon(
+                              onPressed: widget.onNextMultiverse,
+                              icon: const Icon(Icons.rocket_launch, color: Colors.white),
+                              label: const Text(
+                                'Next Multiverse',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.neonPurple.withValues(alpha: 0.8),
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 8,
+                                shadowColor: AppTheme.neonPurple,
+                              ),
+                            ),
                           ),
                         ),
                       ),
