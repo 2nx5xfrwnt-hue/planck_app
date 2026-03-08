@@ -200,6 +200,32 @@ class PostRepository {
     return _db.getUnlockedPostIds(feedDate);
   }
 
+  /// Returns a fresh [QuantumPost] whose teaser is not present in
+  /// [currentTeasers]. Returns `null` if the entire fact pool is exhausted.
+  static QuantumPost? fetchUnseenPost(Set<String> currentTeasers) {
+    final available = _factPool
+        .where((f) => !currentTeasers.contains(f['teaser']))
+        .toList();
+    if (available.isEmpty) return null;
+
+    final factData = available[_rand.nextInt(available.length)];
+    final taskType = TaskType.values[_rand.nextInt(TaskType.values.length)];
+
+    return QuantumPost(
+      id: 'post_${DateTime.now().millisecondsSinceEpoch}_${_rand.nextInt(10000)}',
+      teaserText: factData['teaser']!,
+      fullFactText: factData['fact']!,
+      taskType: taskType,
+    );
+  }
+
+  /// Persists an updated feed list to the SQLite cache.
+  static Future<void> updateCachedFeed(List<QuantumPost> posts) async {
+    final todayStr = _todayKey();
+    final jsonList = posts.map((post) => post.toJson()).toList();
+    await _db.cacheFeed(todayStr, jsonEncode(jsonList), _feedVersion);
+  }
+
   /// Hydrates `isUnlocked` on each post from the database.
   static Future<List<QuantumPost>> _hydrateUnlockState(
     List<QuantumPost> posts,
