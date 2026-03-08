@@ -15,6 +15,12 @@ This document tracks the development phases of the Planck quantum physics educat
 - [x] **Phase 10: Content Expansion** — Rewrote 30 facts into engaging, multi-paragraph articles with a fun teacher tone.
 - [x] **Phase 11a: Physical Device Deployment** — Verified deployment and haptics on physical iPhone via USB and WiFi.
 
+## ✅ Bug Fix Pass — Mini-Game & Dialog UI (March 2026)
+Fixed three interrelated bugs in the Tap Target mini-game and TaskManagerDialog:
+- `tap_target_task.dart`: Burst particle `CustomPaint` blocked taps after first catch. Root cause: the overlay's hide condition checked `value == 0` but the animation ends at `value == 1`, so the full-area `CustomPaint` remained on top of the `GestureDetector`. Fix: wrapped in `IgnorePointer` and simplified condition to `!isAnimating`.
+- `task_manager_dialog.dart`: Title `Text` in header `Row` lacked `Expanded`, causing overflow into the close button area. Fix: wrapped in `Expanded` with ellipsis overflow.
+- `task_manager_dialog.dart`: Close `IconButton` had `constraints: BoxConstraints()` (zero minimum size), making its tap target too small and easily obscured. Fix: wrapped in a `SizedBox(width: 40, height: 40)` for a proper hit area.
+
 ## Current Status: Pivot to Personal Use (Phase 12+)
 **Strategic Pivot (March 2026):**
 The project has shifted from a public App Store release to a high-quality, personal app for the developer (iOS) and partner (Android).

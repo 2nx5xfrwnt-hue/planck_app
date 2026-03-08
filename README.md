@@ -48,7 +48,13 @@ App successfully deployed to a physical iPhone via both **WiFi debugging** and *
 - **Status:** Verified via USB and WiFi
 - **Deploy Command:** `flutter run -d 00008110-001A34510C31801E`
 
-### 🚀 Phase 11b — App Store Release (Current)
+### ✅ Bug Fix Pass — Mini-Game & Dialog UI (March 2026)
+Fixed three interrelated UI bugs in the "Proof of Observation" mini-game dialog:
+- **Tap Target task froze after first catch:** The burst particle `CustomPaint` overlay remained rendered after its animation completed, blocking all subsequent taps on the target. Fixed by wrapping in `IgnorePointer` and correcting the animation-complete condition.
+- **Dialog title overflow:** The title text in the task dialog could overflow its `Row`, causing a visible overflow artifact in the top-right. Fixed by wrapping the title in `Expanded` with `TextOverflow.ellipsis`.
+- **Close (X) button unresponsive:** The overflow from the title covered the close button's hit area, and the button itself had zero-size constraints. Fixed by giving it a proper 40x40 tap target via `SizedBox`.
+
+### 🚀 Phase 11b — App Store Release (Cancelled)
 *   **Physical Device QA:** Extensive testing of haptic feedback pacing, animation performance, and scroll responsiveness on the physical iPhone.
 *   **Production Branding:** Update `com.example.planck` to a production-ready bundle ID and final app name.
 *   **App Icon & Assets:** Generate official app icons and launch screens.
