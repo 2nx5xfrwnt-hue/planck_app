@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../data/planck_database.dart';
 
 class ProgressService extends ChangeNotifier {
-  static const String _insightPointsKey = 'insight_points';
+  final PlanckDatabase _db;
   
   int _insightPoints = 0;
   bool _isInitialized = false;
@@ -10,29 +10,26 @@ class ProgressService extends ChangeNotifier {
   int get insightPoints => _insightPoints;
   bool get isInitialized => _isInitialized;
 
-  ProgressService() {
+  ProgressService(this._db) {
     _init();
   }
 
   Future<void> _init() async {
-    final prefs = await SharedPreferences.getInstance();
-    _insightPoints = prefs.getInt(_insightPointsKey) ?? 0;
+    _insightPoints = await _db.getInsightPoints();
     _isInitialized = true;
     notifyListeners();
   }
 
   Future<void> addInsightPoints(int points) async {
-    _insightPoints += points;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_insightPointsKey, _insightPoints);
+    await _db.addInsightPoints(points);
+    _insightPoints += points; // Update local state for immediate UI feedback
     notifyListeners();
   }
 
   // Helper method for resetting progress during development
   Future<void> clearProgress() async {
+    await _db.setMeta('insight_points', '0');
     _insightPoints = 0;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_insightPointsKey);
     notifyListeners();
   }
 

@@ -1,14 +1,144 @@
-import 'dart:convert';
 import 'dart:math';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'quantum_post.dart';
+import 'planck_database.dart';
 
 class PostRepository {
   static final Random _rand = Random();
 
-  static final List<Map<String, String>> _factPool = [
-    {
-      "teaser": "Your unopened texts are both good and bad news — until you look",
+  // Sentinel to detect a schema-breaking change to TaskType.
+  // Bump this if the TaskType enum order changes, forcing a new feed.
+  static const int _feedSchemaVersion = 5;
+
+  static String _todayStr() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  static Future<List<QuantumPost>> generateDailyFeed() async {
+    final db = PlanckDatabase.instance;
+    final todayStr = _todayStr();
+
+    // --- Cache check ---
+    final cachedDate = await db.getMeta('daily_feed_date');
+    final cachedVersion = await db.getMeta('daily_feed_schema_version');
+
+    if (cachedDate == todayStr &&
+        cachedVersion == _feedSchemaVersion.toString()) {
+      final entries = await _loadTodayFeedEntries(db, todayStr);
+      if (entries.isNotEmpty) return entries;
+    }
+
+    // --- Generate new feed ---
+    // Pick 25 facts ordered by last_seen_at ASC (unseen first), then random.
+    final rawDb = await db.database;
+    final rows = await rawDb.rawQuery('''
+      SELECT f.id, f.teaser, f.body
+      FROM facts f
+      LEFT JOIN fact_progress fp ON f.id = fp.fact_id
+      ORDER BY fp.last_seen_at ASC, RANDOM()
+      LIMIT 25
+    ''');
+
+    if (rows.isEmpty) {
+      // Content not yet synced — return empty list; UI shows loader.
+      return [];
+    }
+
+    final now = DateTime.now().toIso8601String();
+
+    await rawDb.transaction((txn) async {
+      // Clear old entries for today in case of a schema-bump regeneration.
+      await txn.delete(
+        'feed_entries',
+        where: 'date = ?',
+        whereArgs: [todayStr],
+      );
+
+      for (int i = 0; i < rows.length; i++) {
+        final factId = rows[i]['id'] as String;
+        final taskType = TaskType.values[_rand.nextInt(TaskType.values.length)];
+
+        await txn.insert('feed_entries', {
+          'date': todayStr,
+          'position': i,
+          'fact_id': factId,
+          'task_type': taskType.index,
+        });
+
+        // Upsert fact_progress: increment seen_count, update timestamps.
+        await txn.rawInsert('''
+          INSERT INTO fact_progress (fact_id, seen_count, task_completed, ip_earned, first_seen_at, last_seen_at)
+          VALUES (?, 1, 0, 0, ?, ?)
+          ON CONFLICT(fact_id) DO UPDATE SET
+            seen_count = seen_count + 1,
+            last_seen_at = excluded.last_seen_at
+        ''', [factId, now, now]);
+      }
+    });
+
+    await db.setMeta('daily_feed_date', todayStr);
+    await db.setMeta('daily_feed_schema_version', _feedSchemaVersion.toString());
+
+    return _buildPostList(rows);
+  }
+
+  static Future<List<QuantumPost>> _loadTodayFeedEntries(
+    PlanckDatabase db,
+    String todayStr,
+  ) async {
+    final rawDb = await db.database;
+    final rows = await rawDb.rawQuery('''
+      SELECT f.id, f.teaser, f.body, fe.task_type
+      FROM feed_entries fe
+      JOIN facts f ON fe.fact_id = f.id
+      WHERE fe.date = ?
+      ORDER BY fe.position ASC
+    ''', [todayStr]);
+
+    return rows.map((row) {
+      return QuantumPost(
+        id: row['id'] as String,
+        teaserText: row['teaser'] as String,
+        fullFactText: row['body'] as String,
+        taskType: TaskType.values[row['task_type'] as int],
+      );
+    }).toList();
+  }
+
+  static List<QuantumPost> _buildPostList(List<Map<String, Object?>> rows) {
+    return rows.map((row) {
+      final taskType = TaskType.values[_rand.nextInt(TaskType.values.length)];
+      return QuantumPost(
+        id: row['id'] as String,
+        teaserText: row['teaser'] as String,
+        fullFactText: row['body'] as String,
+        taskType: taskType,
+      );
+    }).toList();
+  }
+
+  // Dummy placeholder to keep old callers compiling if any remain.
+  @Deprecated('Feed index is now managed by PlanckDatabase app_meta.')
+  static Future<void> saveFeedIndex(int index) async {
+    await PlanckDatabase.instance.setMeta('daily_feed_index', index.toString());
+  }
+
+  @Deprecated('Feed index is now managed by PlanckDatabase app_meta.')
+  static Future<int> loadFeedIndex() async {
+    final val = await PlanckDatabase.instance.getMeta('daily_feed_index');
+    return val != null ? (int.tryParse(val) ?? 0) : 0;
+  }
+}
+
+// ---- Below this line is dead code kept only for historical reference ----
+// ignore_for_file: unused_element
+class _OldFactPool {
+  // All content has been moved to assets/content.json.
+  // This class exists only to preserve Git history context.
+  static const String _UNUSED = "fact_pool_removed";
+
+  static const String _teaser_sentinel = "Your unopened texts are both good and bad news — until you look",
       "fact": "It's called superposition, and it's one of the wildest ideas in all of science. In quantum mechanics, a particle doesn't just \"pick\" a state and hang out there — it exists in ALL possible states at the same time. Physicist Erwin Schrödinger illustrated this with his famous thought experiment: a cat in a sealed box is simultaneously alive AND dead until someone opens the lid and looks.\n\nNow before you call animal control, nobody actually put a cat in a box. It was a thought experiment designed to show how absurd quantum rules sound when you scale them up to everyday objects. But at the subatomic level? This is literally how particles behave. An electron doesn't orbit in one place — it's smeared across every possible location until you measure it.\n\nThink about it like your phone buzzing in your pocket. That text notification is both good news and bad news — scholarship acceptance AND a parking ticket — until you pull out your phone and actually read it. Before you look, both realities coexist. That's superposition in a nutshell.\n\nHere's where it gets really trippy: this isn't just philosophical hand-waving. Superposition is the foundation of quantum computing, quantum cryptography, and some of the most advanced technology being built right now. The next technological revolution is literally built on the idea that things can be two contradictory things at once. Your brain says that's impossible. The universe respectfully disagrees.",
     },
     {
