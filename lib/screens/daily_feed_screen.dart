@@ -129,31 +129,8 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Page indicator
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppTheme.neonBlue.withValues(alpha: 0.3)),
-                          ),
-                          child: Text(
-                            '${_currentPage + 1}/${_posts.length}',
-                            style: const TextStyle(
-                              color: AppTheme.neonBlue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                     // Insight Points badge
                     Consumer<ProgressService>(
                       builder: (context, progress, _) {

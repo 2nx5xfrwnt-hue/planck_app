@@ -21,6 +21,11 @@ Fixed three interrelated bugs in the Tap Target mini-game and TaskManagerDialog:
 - `task_manager_dialog.dart`: Title `Text` in header `Row` lacked `Expanded`, causing overflow into the close button area. Fix: wrapped in `Expanded` with ellipsis overflow.
 - `task_manager_dialog.dart`: Close `IconButton` had `constraints: BoxConstraints()` (zero minimum size), making its tap target too small and easily obscured. Fix: wrapped in a `SizedBox(width: 40, height: 40)` for a proper hit area.
 
+## ✅ UI Cleanup — Page Counter Removal (March 2026)
+Removed the "1/15", "2/25" page counter badge from the upper-left corner of the Daily Feed.
+The counter was unnecessary clutter — users navigate the feed by swiping, and the exact page number adds no value.
+The Insight Points badge remains in the upper-right as the sole HUD element.
+
 ## Current Status: Pivot to Personal Use (Phase 12+)
 **Strategic Pivot (March 2026):**
 The project has shifted from a public App Store release to a high-quality, personal app for the developer (iOS) and partner (Android).
