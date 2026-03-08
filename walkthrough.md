@@ -1,0 +1,28 @@
+# Planck — User Walkthrough
+
+Welcome to Planck! This guide outlines how to navigate and test the app's core features.
+
+## Core Flow
+1. **The Daily Feed:** Upon launch, you'll see the "Daily Feed". This is a vertical, TikTok-style feed of quantum facts.
+2. **Scroll to Learn:** Swipe up and down to navigate between different facts. Each fact starts with a catchy "Teaser".
+3. **Observation Gated:** To read the full fact, you must complete a "Proof of Observation" task. Tap the **"Proof of Observation Required"** button at the bottom of a card.
+4. **Complete the Task:** A random mini-game will appear:
+   - **Math:** Quick mental arithmetic.
+   - **Color Sequence:** A memory-based pattern game.
+   - **Word Match:** Unscramble quantum-related words.
+   - **Tap Target:** Click moving particles.
+5. **Unlock Knowledge:** Once observed, the full, multi-paragraph fact is revealed. You can scroll through the text.
+6. **Insight Points:** Every task completed earns you Insight Points (IP), which are tracked in the top-right frosted glass badge.
+
+## Testing on Physical Device
+Testing on a physical iPhone is recommended to fully experience the nuances of the app:
+- **Haptics:** Feel the subtle vibration feedback during swipes and mini-game interactions.
+- **Animations:** Observe the fluid generative backgrounds and custom transition effects.
+- **Performance:** Ensure the vertical scroll feels "buttery smooth" on actual hardware.
+
+### How to Run
+Connect your iPhone via USB and run:
+```bash
+flutter run -d 00008110-001A34510C31801E
+```
+*(Device ID may vary if multiple devices are connected; use `flutter devices` to verify.)*

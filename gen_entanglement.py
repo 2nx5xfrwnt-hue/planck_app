@@ -1,0 +1,148 @@
+import json
+import os
+
+lottie_data = {
+    "v": "5.7.4",
+    "fr": 30,
+    "ip": 0,
+    "op": 90,
+    "w": 300,
+    "h": 300,
+    "nm": "Quantum Entanglement",
+    "ddd": 0,
+    "assets": [],
+    "layers": [
+        # Link line connecting the particles
+        {
+            "ddd": 0,
+            "ind": 1,
+            "ty": 4,
+            "nm": "Link",
+            "sr": 1,
+            "ks": {
+                "o": {"a": 1, "k": [{"i": {"x": [0.833], "y": [0.833]}, "o": {"x": [0.167], "y": [0.167]}, "t": 0, "s": [20]}, {"i": {"x": [0.833], "y": [0.833]}, "o": {"x": [0.167], "y": [0.167]}, "t": 45, "s": [100]}, {"t": 90, "s": [20]}]},
+                "r": {"a": 0, "k": 0, "ix": 10},
+                "p": {"a": 0, "k": [150, 150, 0], "ix": 2},
+                "a": {"a": 0, "k": [0, 0, 0], "ix": 1},
+                "s": {"a": 0, "k": [100, 100, 100], "ix": 6}
+            },
+            "ao": 0,
+            "shapes": [
+                {
+                    "ty": "sh",
+                    "ix": 1,
+                    "nm": "Line",
+                    "hd": False,
+                    "ks": {
+                        "a": 0,
+                        "k": {
+                            "i": [[0, 0], [0, 0]],
+                            "o": [[0, 0], [0, 0]],
+                            "v": [[-80, 0], [80, 0]],
+                            "c": False
+                        },
+                        "ix": 2
+                    }
+                },
+                {
+                    "ty": "st",
+                    "c": {"a": 0, "k": [0, 0.94, 1, 1], "ix": 3},
+                    "o": {"a": 0, "k": 100, "ix": 4},
+                    "w": {"a": 0, "k": 4, "ix": 5},
+                    "lc": 2,
+                    "lj": 2,
+                    "nm": "Stroke 1",
+                    "hd": False,
+                    "d": [{"n": "d", "v": {"a": 0, "k": 10}}] # Dashed line
+                }
+            ],
+            "ip": 0,
+            "op": 90,
+            "st": 0,
+            "bm": 0
+        },
+        # Particle 1 (Left)
+        {
+            "ddd": 0,
+            "ind": 2,
+            "ty": 4,
+            "nm": "Particle 1",
+            "sr": 1,
+            "ks": {
+                "o": {"a": 0, "k": 100, "ix": 11},
+                "r": {"a": 1, "k": [{"i": {"x": [0.833], "y": [0.833]}, "o": {"x": [0.167], "y": [0.167]}, "t": 0, "s": [0]}, {"t": 90, "s": [360]}]},
+                "p": {"a": 0, "k": [70, 150, 0], "ix": 2},
+                "a": {"a": 0, "k": [0, 0, 0], "ix": 1},
+                "s": {"a": 0, "k": [100, 100, 100], "ix": 6}
+            },
+            "ao": 0,
+            "shapes": [
+                {
+                    "ty": "el",
+                    "d": 1,
+                    "p": {"a": 0, "k": [0, 0]},
+                    "s": {"a": 0, "k": [40, 40]},
+                    "nm": "Ellipse Path",
+                    "hd": False
+                },
+                {
+                    "ty": "fl",
+                    "c": {"a": 0, "k": [1, 0.2, 0.6, 1], "ix": 4},
+                    "o": {"a": 0, "k": 100, "ix": 5},
+                    "r": 1,
+                    "bm": 0,
+                    "nm": "Fill 1",
+                    "hd": False
+                }
+            ],
+            "ip": 0,
+            "op": 90,
+            "st": 0,
+            "bm": 0
+        },
+        # Particle 2 (Right) spinning opposite
+        {
+            "ddd": 0,
+            "ind": 3,
+            "ty": 4,
+            "nm": "Particle 2",
+            "sr": 1,
+            "ks": {
+                "o": {"a": 0, "k": 100, "ix": 11},
+                "r": {"a": 1, "k": [{"i": {"x": [0.833], "y": [0.833]}, "o": {"x": [0.167], "y": [0.167]}, "t": 0, "s": [0]}, {"t": 90, "s": [-360]}]},
+                "p": {"a": 0, "k": [230, 150, 0], "ix": 2},
+                "a": {"a": 0, "k": [0, 0, 0], "ix": 1},
+                "s": {"a": 0, "k": [100, 100, 100], "ix": 6}
+            },
+            "ao": 0,
+            "shapes": [
+                {
+                    "ty": "el",
+                    "d": 1,
+                    "p": {"a": 0, "k": [0, 0]},
+                    "s": {"a": 0, "k": [40, 40]},
+                    "nm": "Ellipse Path",
+                    "hd": False
+                },
+                {
+                    "ty": "fl",
+                    "c": {"a": 0, "k": [1, 0.2, 0.6, 1], "ix": 4},
+                    "o": {"a": 0, "k": 100, "ix": 5},
+                    "r": 1,
+                    "bm": 0,
+                    "nm": "Fill 1",
+                    "hd": False
+                }
+            ],
+            "ip": 0,
+            "op": 90,
+            "st": 0,
+            "bm": 0
+        }
+    ]
+}
+
+os.makedirs('/Users/r_chr/plank_app/assets/animations', exist_ok=True)
+with open('/Users/r_chr/plank_app/assets/animations/quantum_entanglement.json', 'w') as f:
+    json.dump(lottie_data, f)
+print("Entanglement json created.")
