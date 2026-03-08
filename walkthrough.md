@@ -20,9 +20,15 @@ Testing on a physical iPhone is recommended to fully experience the nuances of t
 - **Animations:** Observe the fluid generative backgrounds and custom transition effects.
 - **Performance:** Ensure the vertical scroll feels "buttery smooth" on actual hardware.
 
-### How to Run
-Connect your iPhone via USB and run:
-```bash
-flutter run -d 00008110-001A34510C31801E
-```
-*(Device ID may vary if multiple devices are connected; use `flutter devices` to verify.)*
+### How to Run (Personal Build)
+
+**For iPhone (iOS):**
+1.  Connect via USB.
+2.  Run `flutter run --release` (for better performance) or `flutter run` (for debugging).
+3.  **Note:** Since we are using a free Apple ID, the app provisioning expires every 7 days. You will need to re-deploy (run this command again) weekly.
+
+**For Android (Samsung S22):**
+1.  Enable "Developer Options" and "USB Debugging" on the Samsung device.
+2.  Connect via USB.
+3.  Run `flutter install` or build an APK (`flutter build apk`) and transfer it to the phone.
+4.  The APK does not expire.

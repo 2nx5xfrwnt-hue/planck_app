@@ -15,18 +15,41 @@ This document tracks the development phases of the Planck quantum physics educat
 - [x] **Phase 10: Content Expansion** — Rewrote 30 facts into engaging, multi-paragraph articles with a fun teacher tone.
 - [x] **Phase 11a: Physical Device Deployment** — Verified deployment and haptics on physical iPhone via USB and WiFi.
 
-## Current Phase: 11b — App Store Readiness
-- [ ] **On-Device UX Audit:** Review haptic timing and animation frame rates.
-- [ ] **Production Assets:**
-    - [ ] Create official app icon (1024x1024).
-    - [ ] Design launch/splash screen.
-- [ ] **Branding:**
-    - [ ] Decide on final app name (currently "Planck").
-    - [ ] Update Bundle ID from `com.example.planck`.
-- [ ] **Store Metadata:**
-    - [ ] Draft short and long descriptions.
-    - [ ] Create promotional graphics/screenshots.
+## Current Status: Pivot to Personal Use (Phase 12+)
+**Strategic Pivot (March 2026):**
+The project has shifted from a public App Store release to a high-quality, personal app for the developer (iOS) and partner (Android).
+- **Goal:** Zero cost, offline-first, massive content library.
+- **Strategy:** "Build-Time AI". Content is generated in bulk (1000+ facts) and bundled as JSON. No runtime API calls.
 
-## Future Phases
-- [ ] **Phase 12: External Data Integration** — (Optional) Pulling real-time quantum news/facts.
-- [ ] **Phase 13: Social Features** — Sharing unlocked facts to social media with unique generative art backgrounds.
+---
+
+## Active Phase: 12 — Local Content Engine
+- [ ] **Data Layer Refactor:**
+    - [ ] Create `assets/content.json` schema.
+    - [ ] Update `pubspec.yaml` to include assets.
+    - [ ] Rewrite `PostRepository` to load/parse JSON asynchronously.
+    - [ ] Remove hardcoded facts from Dart code.
+- [ ] **Content Generation (The "Brain"):**
+    - [ ] Create a "Fact Generator" prompt/script to mass-produce valid JSON entries.
+    - [ ] Generate Batch 1: 50-100 deep-dive facts (Quantum Computing, String Theory, etc.).
+    - [ ] Validate JSON integrity.
+
+## Phase 13 — Personal Deployment
+- [ ] **Android (Samsung S22):**
+    - [ ] Configure signing config (debug keystore is fine for personal use, or create a release keystore).
+    - [ ] Build APK: `flutter build apk --release`.
+    - [ ] Verify installation on device.
+- [ ] **iOS (iPhone):**
+    - [ ] Configure Xcode for Personal Team signing.
+    - [ ] Document the 7-day renewal process (or setup AltStore).
+    - [ ] Build and deploy: `flutter run --release`.
+
+## Future Ideas
+- [ ] **"Update Packs":** A simple script to generate 100 new facts and "patch" the app by rebuilding it.
+- [ ] **Personal Stats:** Local graphing of "Insight Points" over time.
+
+---
+
+## Deprecated / Completed Phases
+- [x] **Phase 1-11a:** Core Development (Completed).
+- [x] **Phase 11b:** App Store Readiness (**CANCELLED** - Pivoted to Personal Use).
