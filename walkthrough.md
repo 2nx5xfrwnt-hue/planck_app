@@ -15,6 +15,8 @@ Welcome to Planck! This guide outlines how to navigate and test the app's core f
 6. **Closing a Task:** Use the **X** button in the top-right corner of the task dialog to cancel and return to the feed.
 6. **Insight Points:** Every task completed earns you Insight Points (IP), which are tracked in the top-right frosted glass badge.
 
+> **Note (March 2026):** The page counter (e.g. "1/15") that previously appeared in the upper-left has been removed to reduce UI clutter. The IP badge is now the only HUD overlay.
+
 ## Testing on Physical Device
 Testing on a physical iPhone is recommended to fully experience the nuances of the app:
 - **Haptics:** Feel the subtle vibration feedback during swipes and mini-game interactions.
