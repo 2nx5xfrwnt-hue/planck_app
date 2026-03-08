@@ -32,9 +32,14 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedIndex = prefs.getInt('daily_feed_index') ?? 0;
-    
-    final posts = await PostRepository.generateDailyFeed();
-    
+
+    // If the user has been away for ≥ 12 hours, regenerate the entire feed.
+    final stale = await PostRepository.isFeedStale();
+    final posts = await PostRepository.generateDailyFeed(forceRefresh: stale);
+
+    // Record this session as the latest interaction.
+    await PostRepository.updateLastInteraction();
+
     if (mounted) {
       setState(() {
         _posts = posts;
@@ -59,19 +64,30 @@ class _DailyFeedScreenState extends State<DailyFeedScreen> {
   Future<void> _handleNextMultiverse(int index) async {
     final completedPost = _posts[index];
 
-    // 1. Mark the current post as completed in the database.
-    await PostRepository.markPostUnlocked(completedPost.id);
+    // 1. Mark the current post as completed via ProgressService & DB.
+    if (mounted) {
+      await context.read<ProgressService>().markPostCompleted(completedPost.id);
+    }
 
-    // 2. Fetch a fresh unseen post.
+    // 2. Fetch a fresh, uncompleted post (new teaser, new mini-game, new topic).
     final currentTeasers = _posts.map((p) => p.teaserText).toSet();
     final newPost = PostRepository.fetchUnseenPost(currentTeasers);
 
     if (newPost != null && mounted) {
-      // 3. Replace at the same index and persist the updated feed.
+      // 3. Replace the completed post at the exact same index.
       setState(() {
         _posts[index] = newPost;
       });
       await PostRepository.updateCachedFeed(_posts);
+    }
+
+    // 4. Record this interaction for the 12-hour staleness window.
+    await PostRepository.updateLastInteraction();
+
+    // 5. Pop any routes that may sit on top of the feed (e.g. detail screens)
+    //    so the user lands back on the main feed viewing the new teaser.
+    if (mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 

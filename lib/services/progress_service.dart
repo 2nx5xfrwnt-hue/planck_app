@@ -87,6 +87,12 @@ class ProgressService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marks a post as completed (unlocked) in the database.
+  Future<void> markPostCompleted(String postId) async {
+    await _db.markPostUnlocked(postId, _todayString());
+    notifyListeners();
+  }
+
   Future<void> updateCardsViewedCount(String moduleId, int count) async {
     await _db.updateCardsViewedCount(moduleId, count);
   }

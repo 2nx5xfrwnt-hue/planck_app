@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'quantum_post.dart';
 import 'database_helper.dart';
 
@@ -140,21 +141,51 @@ class PostRepository {
     return '${now.year}-${now.month}-${now.day}';
   }
 
+  static const String _lastInteractionKey = 'last_feed_interaction_at';
+  static const int _stalenessHours = 12;
+
+  /// Returns `true` if the feed is stale (no interaction for ≥ 12 hours).
+  static Future<bool> isFeedStale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_lastInteractionKey);
+    if (raw == null) return false; // First launch — not stale.
+    final lastTime = DateTime.tryParse(raw);
+    if (lastTime == null) return true;
+    return DateTime.now().difference(lastTime).inHours >= _stalenessHours;
+  }
+
+  /// Records the current time as the last feed interaction.
+  static Future<void> updateLastInteraction() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _lastInteractionKey,
+      DateTime.now().toIso8601String(),
+    );
+  }
+
   /// Loads or generates the daily feed, hydrating unlock state from SQLite.
-  static Future<List<QuantumPost>> generateDailyFeed() async {
+  ///
+  /// When [forceRefresh] is `true` (e.g. after 12 hours of inactivity) the
+  /// cached feed is ignored and an entirely new feed is generated.
+  static Future<List<QuantumPost>> generateDailyFeed({
+    bool forceRefresh = false,
+  }) async {
     final todayStr = _todayKey();
 
-    // Try loading a cached feed from the database.
-    final cachedJson = await _db.getCachedFeed(todayStr, _feedVersion);
-    if (cachedJson != null) {
-      try {
-        final List<dynamic> decoded = jsonDecode(cachedJson);
-        final posts = decoded
-            .map((item) => QuantumPost.fromJson(item as Map<String, dynamic>))
-            .toList();
-        return _hydrateUnlockState(posts, todayStr);
-      } catch (_) {
-        // Corrupt cache – fall through and regenerate.
+    if (!forceRefresh) {
+      // Try loading a cached feed from the database.
+      final cachedJson = await _db.getCachedFeed(todayStr, _feedVersion);
+      if (cachedJson != null) {
+        try {
+          final List<dynamic> decoded = jsonDecode(cachedJson);
+          final posts = decoded
+              .map((item) =>
+                  QuantumPost.fromJson(item as Map<String, dynamic>))
+              .toList();
+          return _hydrateUnlockState(posts, todayStr);
+        } catch (_) {
+          // Corrupt cache – fall through and regenerate.
+        }
       }
     }
 
